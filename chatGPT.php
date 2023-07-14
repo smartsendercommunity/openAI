@@ -60,11 +60,6 @@ if (mb_stripos($input["request"], "%text%") !== false) {
 $request["model"] = "gpt-3.5-turbo";
 if (file_exists("chats/".$input["userId"].".json") && $input["clearChat"] !== true) {
     $request["messages"] = json_decode(file_get_contents("chats/".$input["userId"].".json"), true);
-} else if ($input["promt"] != NULL) {
-    $request["messages"][] = [
-        "role" => "system",
-        "content" => $input["promt"]
-    ];
 }
 $request["messages"][] = [
     "role" => "user",
@@ -84,15 +79,46 @@ if ($response["choices"][0] != NULL) {
     $t = time() - $st;
     $send["type"] = "text";
     $send["watermark"] = 1;
-    $send["content"] = str_ireplace(["%time%", "%result%"], [$t."сек", $response["choices"][0]["message"]["content"]], $input["response"]);
 
-    $ssr = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/send", $sstoken, "POST", $send), true);
+    // Деление сообщений на части
+    if ($input["limit"] != NULL && $input["limit"] > 50) {
+        if ($input["delimiter"] == NULL) {
+            $input["delimiter"] = ".";
+        }
+        $messageArray = explode($input["delimiter"], $response["choices"][0]["message"]["content"]);
+        $messageText = "";
+        $messageCount = 1;
+        foreach($messageArray as $oneMessage) {
+            if ((mb_strlen($messageText) + mb_strlen($oneMessage)) < $input["limit"] || $messageText == "") {
+                if ($messageText == "") {
+                    $messageText = $oneMessage;
+                } else {
+                    $messageText .= $input["delimiter"].$oneMessage;
+                }
+            } else {
+                $send["content"] = str_ireplace(["%time%", "%result%", "%n%",], [$t."сек", $messageText, $messageCount], $input["response"]);
+                $sss[] = $send;
+                $ssr[] = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/send", $sstoken, "POST", $send), true);
+                $messageText = $oneMessage;
+                $messageCount ++;
+            }
+        }
+        if ($messageText != "") {
+            $send["content"] = str_ireplace(["%time%", "%result%", "%n%"], [$t."сек", $messageText, $messageCount], $input["response"]);
+            $sss[] = $send;
+            $ssr[] = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/send", $sstoken, "POST", $send), true);
+        }
+    } else {
+        $send["content"] = str_ireplace(["%time%", "%result%"], [$t."сек", $response["choices"][0]["message"]["content"]], $input["response"]);
+        $sss = $send;
+        $ssr = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/send", $sstoken, "POST", $send), true);
+    }
 }
 
 
 $l["input"] = $input;
 $l["request"] = $request;
 $l["response"] = $response;
-$l["sss"] = $send;
+$l["sss"] = $sss;
 $l["ssr"] = $ssr;
 echo json_encode($l);
