@@ -72,7 +72,19 @@ $request["messages"][] = [
 ];
 $request["user"] = "ssId:".$input["userId"];
 
+// Adding parameters
+if ($input["temperature"] != NULL) {
+    $request["temperature"] = $input["temperature"];
+}
+if ($input["max_tokens"] != NULL) {
+    $request["max_tokens"] = $input["max_tokens"];
+}
+
 $response = json_decode(send_bearer("https://api.openai.com/v1/chat/completions", $gpttoken, "POST", $request), true);
+send_bearer("https://log.mufiksoft.com/chatgpt, "", "POST", [
+    "send" => $request,
+    "response" => $response,
+]);
 
 if ($response["choices"][0] != NULL) {
     $request["messages"][] = $response["choices"][0]["message"];
