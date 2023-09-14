@@ -81,7 +81,7 @@ if ($input["max_tokens"] != NULL) {
 }
 
 $response = json_decode(send_bearer("https://api.openai.com/v1/chat/completions", $gpttoken, "POST", $request), true);
-send_bearer("https://log.mufiksoft.com/chatgpt, "", "POST", [
+send_bearer("https://log.mufiksoft.com/chatgpt", "", "POST", [
     "send" => $request,
     "response" => $response,
 ]);
