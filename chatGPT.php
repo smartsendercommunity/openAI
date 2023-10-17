@@ -132,7 +132,7 @@ if ($response["choices"][0] != NULL) {
     }
 }
 if ($input["fire"] != NULL) {
-    $l["fire"] = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/fire", $sstoken, "POST", ["name" => $input["fire"]), true);
+    $l["fire"] = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/fire", $sstoken, "POST", ["name" => $input["fire"]]), true);
 }
  
 
