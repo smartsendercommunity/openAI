@@ -77,6 +77,10 @@ if ($resultAI["choices"][0]["text"] != NULL) {
 
 $res = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/send", $sstoken, "POST", $send), true);
 
+if ($input["fire"] != NULL) {
+    $l["fire"] = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/fire", $sstoken, "POST", ["name" => $input["fire"]), true);
+}
+
 $l["send"]["send"] = $send;
 $l["send"]["result"] = $res;
 echo json_encode($l);
