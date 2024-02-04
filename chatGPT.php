@@ -94,7 +94,7 @@ if ($response["choices"][0] != NULL) {
     $send["watermark"] = 1;
 
     // Деление сообщений на части
-    if ($input["limit"] != NULL && $input["limit"] > 50) {
+    if ($input["limit"] != NULL && $input["limit"] > 50 && mb_strlen($response["choices"][0]["message"]["content"]) > $input["limit"]) {
         if ($input["delimiter"] == NULL) {
             $input["delimiter"] = ".";
         }
@@ -109,7 +109,11 @@ if ($response["choices"][0] != NULL) {
                     $messageText .= $input["delimiter"].$oneMessage;
                 }
             } else {
-                $send["content"] = str_ireplace(["%time%", "%result%", "%n%",], [$t."сек", $messageText, $messageCount], $input["response"]);
+                if ($input["partResponse"] != NULL && mb_strpos($input["partResponse"], "%result%") !== false) {
+                    $send["content"] = str_ireplace(["%time%", "%result%", "%n%",], [$t."сек", $messageText, $messageCount], $input["partResponse"]);
+                } else {
+                    $send["content"] = str_ireplace(["%time%", "%result%", "%n%",], [$t."сек", $messageText, $messageCount], $input["response"]);
+                }
                 $sss[] = $send;
                 $ssr[] = json_decode(send_bearer("https://api.smartsender.com/v1/contacts/".$input["userId"]."/send", $sstoken, "POST", $send), true);
                 $messageText = $oneMessage;
