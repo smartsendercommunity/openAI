@@ -58,6 +58,7 @@ if (mb_stripos($input["request"], "%text%") !== false) {
 }
 
 $request["model"] = "gpt-3.5-turbo";
+// $request["model"] = "gpt-4";
 if (file_exists("chats/".$input["userId"].".json") && $input["clearChat"] !== true) {
     $request["messages"] = json_decode(file_get_contents("chats/".$input["userId"].".json"), true);
 } else if ($input["promt"] != NULL) {
