@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       exit;
     }
     foreach ($getMessages["collection"] as $oneMessage) {
-      if ($oneMessage["sender"]["type"] == "contact" && $oneMessage["content"]["type"]["text"] && $oneMessage["content"]["resource"]["parameters"]["content"] != NULL) {
+      if ($oneMessage["sender"]["type"] == "contact" && $oneMessage["content"]["type"] == "text" && $oneMessage["content"]["resource"]["parameters"]["content"] != NULL) {
         $useMessage = $oneMessage["content"]["resource"]["parameters"]["content"];
         break;
       }
