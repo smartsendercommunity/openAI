@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (file_exists("threads/".$input["userId"])) {
     $thread = file_get_contents("threads/".$input["userId"]);
   } else {
-    $createThread = json_decode(send_bearer("https://api.openai.com/v1/threads", $gptToken, "POST"), true);
+    $createThread = json_decode(send_bearer("https://api.openai.com/v1/threads", $gptToken, "POST", []), true);
     if ($createThread["id"] != NULL) {
       file_put_contents("threads/".$input["userId"], $createThread["id"]);
       $thread = $createThread["id"];
